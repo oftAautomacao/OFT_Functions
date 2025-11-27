@@ -1,0 +1,26 @@
+{
+  "name": "oftautmocao",
+  "version": "1.0.0",
+  "description": "descricao npm init",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@fontsource/roboto": "^5.2.6",
+    "@mui/icons-material": "^7.2.0",
+    "@mui/material": "^7.2.0",
+    "busboy": "^1.6.0",
+    "cors": "^2.8.5",
+    "date-fns": "^4.1.0",
+    "firebase": "^10.14.1",
+    "imap": "^0.8.19",
+    "mssql": "^10.0.2",
+    "node-emoji": "^2.1.3",
+    "xmlhttprequest": "^1.8.0"
+  }
+}
