@@ -6,8 +6,8 @@
 //  - testeCelularZApi = off
 //  - firebase use oftautomacao-9b427 ou firebase use teste-b720c
 //  - retirar webhook do ZAPI RDH
-const ambiente = "teste"; // teste ou producao
-const envio = "teste"; // teste ou producao
+const ambiente = "producao"; // teste ou producao
+const envio = "producao"; // teste ou producao
 const local = "firebase"; // emulador ou firebase
 const execucaoFuntions = "firebase"; // emulador ou firebase
 const localLog = "googleCloud"; // googleCloud ou rtDataBase
@@ -4057,7 +4057,7 @@ function limparDuplicatasPorIDMarcacao(dados) {
 // 07:00 - 09:59, de 4 em 4 minutos
 exports.oft45ConfirmacaoPacientesJsonV2 = functions
     .runWith({timeoutSeconds: 540}).pubsub
-    .schedule("*/4 07-09 * * 1-5")
+    .schedule("*/4 07-09 * * *")
     .timeZone("America/Sao_Paulo")
     .onRun(async (context) => {
       //
@@ -4084,23 +4084,27 @@ exports.oft45ConfirmacaoPacientesJsonV2 = functions
           sql = sql + "AND  DataMarcada < '2026-01-06' ";
           sql = sql + "ORDER BY DataMarcada";
         } else {
-          if (diaDaSemana == 4) {
+          if (diaDaSemana === 0) {
+            console.log("Hoje é domingo, não deve rodar");
+            return null;
+            //
+          } else if (diaDaSemana === 5) {
             sql = "SELECT * ";
             sql = sql + "FROM   dbo.vw_GSht_Age_Marcacao_Confirmacao ";
-            sql = sql + "WHERE  DataMarcada >= DATEADD(dd," + 2 + ",";
+            sql = sql + "WHERE  DataMarcada >= DATEADD(dd," + 3 + ",";
             sql = sql + "DATETIMEFROMPARTS (" + year + ","+ mm + ","+ dd;
             sql = sql + ",0,0,0,0)) ";
-            sql = sql + "AND  DataMarcada < DATEADD(dd," + 5 + ",";
+            sql = sql + "AND  DataMarcada < DATEADD(dd," + 4 + ",";
             sql = sql + "DATETIMEFROMPARTS (" + year + ","+ mm + ","+ dd;
             sql = sql + ",0,0,0,0)) ";
             sql = sql + "ORDER BY DataMarcada";
-          } else if (diaDaSemana == 5) {
+          } else if (diaDaSemana === 6) {
             sql = "SELECT * ";
             sql = sql + "FROM   dbo.vw_GSht_Age_Marcacao_Confirmacao ";
-            sql = sql + "WHERE  DataMarcada >= DATEADD(dd," + 4 + ",";
+            sql = sql + "WHERE  DataMarcada >= DATEADD(dd," + 3 + ",";
             sql = sql + "DATETIMEFROMPARTS (" + year + ","+ mm + ","+ dd;
             sql = sql + ",0,0,0,0)) ";
-            sql = sql + "AND  DataMarcada < DATEADD(dd," + 5 + ",";
+            sql = sql + "AND  DataMarcada < DATEADD(dd," + 4 + ",";
             sql = sql + "DATETIMEFROMPARTS (" + year + ","+ mm + ","+ dd;
             sql = sql + ",0,0,0,0)) ";
             sql = sql + "ORDER BY DataMarcada";
@@ -4129,16 +4133,17 @@ exports.oft45ConfirmacaoPacientesJsonV2 = functions
     //
     });
 
-// NOVA FUNÇÃO DE RECONFIRMAÇÃO
+
+// NOVA FUNÇÃO DE RECONFIRMAÇÃO ---------------------------- DESATIVADO
+// exports.oft45ReconfirmacaoPacientesJsonV2 = functions
+//     .runWith({timeoutSeconds: 540}).https
+//     .onRequest(async (req, resp) => {
+// 07:00 - 09:59, de 4 em 4 minutos
 exports.oft45ReconfirmacaoPacientesJsonV2 = functions
-    .runWith({timeoutSeconds: 540}).https
-    .onRequest(async (req, resp) => {
-      // 07:00 - 09:59, de 4 em 4 minutos
-      // exports.oft45ReconfirmacaoPacientesJsonV2 = functions
-      // .runWith({timeoutSeconds: 540}).pubsub
-      // .schedule("*/4 07-09 * * 1-5")
-      // .timeZone("America/Sao_Paulo")
-      // .onRun(async (context) => {
+    .runWith({timeoutSeconds: 540}).pubsub
+    .schedule("*/4 07-08 * * *")
+    .timeZone("America/Sao_Paulo")
+    .onRun(async (context) => {
       //
       console.log("Entrou Função oft45ReconfirmacaoPacientesJsonV2");
 
@@ -4186,8 +4191,8 @@ exports.oft45ReconfirmacaoPacientesJsonV2 = functions
         const recordset = res.recordset;
         await oft45EnvioMensagensJson(recordset, tipoMsg);
 
-        resp.end("Ok"+ resp.status.toString() +
-          "\n\n mensagens enviadas");
+        // resp.end("Ok"+ resp.status.toString() +
+        //   "\n\n mensagens enviadas");
         //
       } catch (err) {
         console.error("Erro oft45ReconfirmacaoPacientesJsonV2:", err);
@@ -4199,16 +4204,16 @@ exports.oft45ReconfirmacaoPacientesJsonV2 = functions
 
 // NOVA FUNÇÃO DE PESQUISA DE SATISFAÇÃO
 // 07:00 - 09:59, de 4 em 4 minutos
+// exports.oft45PesquisaSatisfacaoJsonV2 = functions
+//     .runWith({timeoutSeconds: 540}).https
+//     .onRequest(async (req, resp) => {
+//
+// 09:00 - 11:59, de 4 em 4 minutos
 exports.oft45PesquisaSatisfacaoJsonV2 = functions
-    .runWith({timeoutSeconds: 540}).https
-    .onRequest(async (req, resp) => {
-      //
-      // 09:00 - 11:59, de 4 em 4 minutos
-      // exports.oft45PesquisaSatisfacaoJsonV2 = functions
-      //     .runWith({timeoutSeconds: 540}).pubsub
-      //     .schedule("*/4 09-11 * * 1-5")
-      //     .timeZone("America/Sao_Paulo")
-      //     .onRun(async (context) => {
+    .runWith({timeoutSeconds: 540}).pubsub
+    .schedule("*/4 09-10 * * *")
+    .timeZone("America/Sao_Paulo")
+    .onRun(async (context) => {
       //
       console.log("Entrou Função oft45PesquisaSatisfacaoJsonV2");
 
@@ -4247,8 +4252,9 @@ exports.oft45PesquisaSatisfacaoJsonV2 = functions
         const res = await pool.query(sql);
         const recordset = res.recordset;
         await oft45EnvioMensagensJson(recordset, tipoMsg);
-        resp.end("Ok"+ resp.status.toString() +
-          "\n\n mensagens enviadas");
+
+        // resp.end("Ok"+ resp.status.toString() +
+        //   "\n\n mensagens enviadas");
         //
       } catch (err) {
         console.error("Erro oft45PesquisaSatisfacaoJsonV2:", err);
@@ -4256,6 +4262,78 @@ exports.oft45PesquisaSatisfacaoJsonV2 = functions
       }
     //
     });
+
+// NOVA FUNÇÃO DE PACIENTES FALTOSOS
+// 07:00 - 09:59, de 4 em 4 minutos
+// exports.oft45PacientesFaltososJsonV2 = functions
+//     .runWith({timeoutSeconds: 540}).https
+//     .onRequest(async (req, resp) => {
+//
+// 09:00 - 11:59, de 4 em 4 minutos
+exports.oft45PacientesFaltososJsonV2 = functions
+    .runWith({timeoutSeconds: 540}).pubsub
+    .schedule("*/4 11-12 * * *")
+    .timeZone("America/Sao_Paulo")
+    .onRun(async (context) => {
+      //
+      console.log("Entrou Função oft45PacientesFaltososJsonV2");
+
+      const today = new Date();
+      const year = today.getFullYear();
+      const mm = today.getMonth() + 1;
+      const dd = today.getDate();
+
+      const tipoMsg = "pacientesFaltosos";
+
+      try {
+        const pool = await sqlConnection.connect(sqlConfig);
+        let sql = "";
+
+        console.log("Entrou connect");
+
+        if (ambiente == "teste") {
+          sql = "SELECT * ";
+          sql = sql + "FROM   dbo.vw_GSht_Age_Marcacao_Confirmacao ";
+          sql = sql + "WHERE  IDAtendimento IS NULL ";
+          sql = sql + "AND  DataMarcada >= '2025-03-11' ";
+          sql = sql + "AND  DataMarcada < '2025-03-12' ";
+          sql = sql + "ORDER BY DataMarcada";
+          // sql = "SELECT * ";
+          // sql = sql + "FROM   dbo.vw_GSht_Age_Marcacao_Confirmacao ";
+          // sql = sql + "WHERE  IDAtendimento IS NULL ";
+          // sql = sql + "AND  DataMarcada < DATEADD(dd," + 0 + ",";
+          // sql = sql + "DATETIMEFROMPARTS (" + year + ","+ mm + ","+ dd;
+          // sql = sql + ",0,0,0,0)) ";
+          // sql = sql + "AND  DataMarcada >= DATEADD(dd," + -1 + ",";
+          // sql = sql + "DATETIMEFROMPARTS (" + year + ","+ mm + ","+ dd;
+          // sql = sql + ",0,0,0,0)) ";
+          // sql = sql + "ORDER BY DataMarcada";
+        } else {
+          sql = "SELECT * ";
+          sql = sql + "FROM   dbo.vw_GSht_Age_Marcacao_Confirmacao ";
+          sql = sql + "WHERE  IDAtendimento IS NULL ";
+          sql = sql + "AND  DataMarcada < DATEADD(dd," + 0 + ",";
+          sql = sql + "DATETIMEFROMPARTS (" + year + ","+ mm + ","+ dd;
+          sql = sql + ",0,0,0,0)) ";
+          sql = sql + "AND  DataMarcada >= DATEADD(dd," + -1 + ",";
+          sql = sql + "DATETIMEFROMPARTS (" + year + ","+ mm + ","+ dd;
+          sql = sql + ",0,0,0,0)) ";
+          sql = sql + "ORDER BY DataMarcada";
+        }
+        const res = await pool.query(sql);
+        const recordset = res.recordset;
+        await oft45EnvioMensagensJson(recordset, tipoMsg);
+
+        // resp.end("Ok"+ resp.status.toString() +
+        //   "\n\n mensagens enviadas");
+        //
+      } catch (err) {
+        console.error("Erro oft45PacientesFaltososJsonV2:", err);
+        return null;
+      }
+    //
+    });
+
 
 /**
  * @constructor
@@ -4329,6 +4407,12 @@ const oft45EnvioMensagensJson = async (recordset = [], tipoMsg) => {
       for (const element of dadosFiltrados) {
         //
         const dt = element.DataMarcada;
+
+        // 1) campo numérico para ordenar por horário no Firebase
+        // dataMarcadaOrderBy está em milissegundos
+        element.dataMarcadaOrderBy = dt.getTime();
+
+        // 2) campo string só para visualização/mensagens
         element.DataMarcada =
           `${dt.getDate()}/${dt.getMonth() + 1}/${dt.getFullYear()}  ` +
         `${dt.getHours()}:${dt.getMinutes().toString().padStart(2, "0")}`;
@@ -4359,7 +4443,7 @@ const oft45EnvioMensagensJson = async (recordset = [], tipoMsg) => {
     //   fila aEnviar JÁ TEM DADOS:
     //   pega de 5 a 13 primeiros, move p/ 'enviados' e apaga da fila
 
-    const loteSnap = await refAEnviar.orderByKey()
+    const loteSnap = await refAEnviar.orderByChild("dataMarcadaOrderBy")
         .limitToFirst(QtdEnvio).once("value");
 
     if (!loteSnap.exists()) {
@@ -4416,7 +4500,7 @@ const oft45EnvioMensagensJson = async (recordset = [], tipoMsg) => {
 };
 
 
-// NOVA FUNÇÃO CONFIRMAÇÃO  ZAPI
+// NOVA FUNÇÃO CONFIRMAÇÃO ZAPI
 exports.oft45ConfirmacaoPacientesZApiV2 =
   functions.database
       .ref("OFT/45/confirmacaoPacientes/zapi/enviados/{pushId}")
@@ -4437,7 +4521,28 @@ exports.oft45ConfirmacaoPacientesZApiV2 =
       });
 
 
-// NOVA FUNÇÃO PESQUISA SATISFACAO  ZAPI
+// NOVA FUNÇÃO RECONFIRMAÇÃO ZAPI
+exports.oft45ReconfirmacaoPacientesZApiV2 =
+  functions.database
+      .ref("OFT/45/reconfirmacaoPacientes/zapi/enviados/{pushId}")
+      .onCreate(async (snapshot, context) => {
+        //
+        console.log("Entrou oft45ReconfirmacaoPacientesZApiV2");
+        const tipoMsg = "reconfirmacaoPacientes";
+        const planilhaConsulta = "1VbpYwNo0qUuPUNy9-qd9uy7oWyRZbteiH3sj5gjfaQA";
+        const planilhaExame = "1nmlWymwalTiKHpWgq8CHnZw9k62Xh76kjaQt2o4LEtI";
+
+        try {
+          await oft45EnvioMensagensZApi(snapshot, context, tipoMsg,
+              planilhaConsulta, planilhaExame);
+        } catch (err) {
+          console.error("Erro em oft45ReconfirmacaoPacientesZApiV2:", err);
+        }
+        return null;
+      });
+
+
+// NOVA FUNÇÃO PESQUISA SATISFACAO ZAPI
 exports.oft45PesquisaSatisfacaoZApiV2 =
   functions.database
       .ref("OFT/45/pesquisaSatisfacao/zapi/enviados/{pushId}")
@@ -4459,6 +4564,30 @@ exports.oft45PesquisaSatisfacaoZApiV2 =
         return null;
       });
 
+
+// NOVA FUNÇÃO PACIENTES FALTOSOS ZAPI
+exports.oft45PacientesFaltososZApiV2 =
+  functions.database
+      .ref("OFT/45/pacientesFaltosos/zapi/enviados/{pushId}")
+      .onCreate(async (snapshot, context) => {
+        //
+        console.log("Entrou oft45PacientesFaltososZApiV2");
+
+        const tipoMsg = "pacientesFaltosos";
+        const planilhaConsulta = "1SlaS4CnYQtSq0TVEb9pEwRTnLVmZBqsy9-L_N9jM3UU";
+        // não envia pac.faltosos para Campo Visual
+        const planilhaExame = "";
+
+        try {
+          await oft45EnvioMensagensZApi(snapshot, context, tipoMsg,
+              planilhaConsulta, planilhaExame);
+        } catch (err) {
+          console.error("Erro em oft45PacientesFaltososZApiV2:", err);
+        }
+        return null;
+      });
+
+
 /**
  * @constructor
  * @param {Object} snapshot
@@ -4479,7 +4608,15 @@ async function oft45EnvioMensagensZApi(snapshot, context, tipoMsg,
   const element = snapshot.val();
 
   console.log("element:", JSON.stringify(element));
+
   const endereco = "Praça Saenz Pena 45, sala 1508 - Tijuca";
+
+  const complementoMsg = "📍 Caso necessite de " +
+                "declaração de comparecimento ou emissão de Nota Carioca, " +
+                "solicitamos que o pedido seja feito no dia da consulta, " +
+                "diretamente na recepção da clínica. Se a solicitação for " +
+                "feita posteriormente, o prazo para entrega " +
+                "será de até 24 horas.";
 
   let paciente = "";
   let dataMarcada = "";
@@ -4544,7 +4681,7 @@ async function oft45EnvioMensagensZApi(snapshot, context, tipoMsg,
 
   // se medico é campo visual não envia
   let consultaExame = true;
-  if (tipoMsg === "pesquisaSatisfacao" &&
+  if ((tipoMsg === "pesquisaSatisfacao" || tipoMsg === "pacientesFaltosos") &&
     medico === "Campo Visual") consultaExame = false;
 
   console.log("whatsAppCel: " + whatsAppCel);
@@ -4614,7 +4751,10 @@ async function oft45EnvioMensagensZApi(snapshot, context, tipoMsg,
           .replace(/\{datamarcada\}/gi, dataMarcada)
           .replace(/\{medico\}/gi, medico)
           .replace(/\{convenio\}/gi, convenio)
-          .replace(/\{endereco\}/gi, endereco);
+          .replace(/\{endereco\}/gi, endereco)
+          .replace(/\{complemento\}/gi, complementoMsg)
+          .replace(/\{data\}/gi, dataMarcada.split(" ")[0])
+          .replace(/\{hora\}/gi, dataMarcada.split(" ")[2]);
 
       if (ambiente == "teste") {
         whatsAppCel = "5521971938840"; // gabriel
@@ -14743,650 +14883,1064 @@ exports.drmPacienteValidadoBtActions = functions.https
       }
     });
 
-
+// NOVO ENVIO MENSAGENS KATIA ZAPI UNIFICADO
 exports.drmAtendimentoWAKatiaZapi =
     functions.database.ref("DRM/agendamentoWhatsApp/operacional/" +
       "consultasAgendadas/unidades/{unidade}/" +
       "{dataAgendamento}/{horaAgendamento}")
         .onWrite(async (change, context) => {
-          const dbRef = admin.database();
-
+          //
           console.log("Entrou drmAtendimentoWAKatiaZapi");
 
-          // Converte "DD/MM/AAAA" → Date
-          const parseDate = (str) => {
-            const [d, m, y] = str.split("/");
-            return new Date(y, m - 1, d);
-          };
+          const tipoMsg = "DRM";
 
-          // Calcula idade em anos completos
-          const calcularIdade = (nascimentoStr) => {
-            if (!nascimentoStr) return "";
-            const nasc = parseDate(nascimentoStr);
-            const hoje = new Date();
-            let idade = hoje.getFullYear() - nasc.getFullYear();
-            const m = hoje.getMonth() - nasc.getMonth();
-            if (m < 0 || (m === 0 && hoje.getDate() < nasc.getDate())) {
-              idade--;
-            }
-            return idade;
-          };
-
-          // Retorna o dia da semana em PT-BR
-          const diaSemanaDe = (dataStr) => {
-            if (!dataStr) return "";
-            const dias = [
-              "Dom",
-              "Seg",
-              "Ter",
-              "Qua",
-              "Qui",
-              "Sex",
-              "Sab",
-            ];
-            return dias[parseDate(dataStr).getDay()];
-          };
-
-
-          let element = {};
-          let message1 = "";
-          let complemento = "";
-          // let ambienteLink = "";
-
-          let acao = null;
-          if (!change.after.exists() && change.before.exists()) {
-            acao = "cancelar";
-            element = change.before.val();
-            message1 = "📢 *Houve um CANCELAMENTO - Dr. Melo* ";
-          } else {
-            acao = "agendar";
-            // Verifica se a única mudança foi no campo "valid
-            const beforeVal = change.before.val();
-            const afterVal = change.after.val();
-
-            // Se só o campo "validado" mudou, não envia mensagem de novo
-            if ((beforeVal !== null) &&
-                (afterVal !== null) &&
-                (((beforeVal["validado"] === undefined) &&
-                (afterVal["validado"] !== undefined)) ||
-                ((beforeVal["confirmado"] === undefined) &&
-                (afterVal["confirmado"] !== undefined)))) {
-              console.log("Mudança apenas no campo " +
-                  "'validado' ou 'Confirmado'" +
-                          ". Ignorando...");
-              return null;
-            }
-
-            element = afterVal;
-            message1 = "📢 *Novo AGENDAMENTO - Dr. Melo* ";
-            // complemento = "\n\n*IMPORTANTE:* Entre em contato com o " +
-            //   "paciente para obter demais dados e validar se o subplano " +
-            //   "é aceito pela clinica. \n\nApós o contato, se estiver " +
-            //   "tudo certo, clique em Validar Agendamento. \n\nCaso " +
-            //   "contrario clique em Cancelar Agendamento.";
-
-            complemento = "\n\n*IMPORTANTE:* Entre em contato com o " +
-              "paciente para obter demais dados e validar se o subplano " +
-              "é aceito pela clinica.";
+          try {
+            await envioMensagensKatiaZApi(tipoMsg, change);
+          } catch (err) {
+            console.error("Erro em drmAtendimentoWAKatiaZapi:", err);
           }
-
-          let unidade = "";
-          if (element.unidade) {
-            unidade = element.unidade;
-          }
-          // Busca as configurações para obter o telefone da unidade
-          const configuracoesSnapshot = await dbRef.
-              ref("DRM/agendamentoWhatsApp/configuracoes/unidades/" +
-              unidade ).once("value");
-          const configuracoes = configuracoesSnapshot.val();
-          const telefoneUnidade = configuracoes.whatsApp;
-
-          console.log("element:" + JSON.stringify(JSON.stringify(element)));
-          console.log("telefone unidade:" + JSON.stringify(telefoneUnidade));
-
-          let paciente = "";
-          if (element.nomePaciente) {
-            paciente = element.nomePaciente;
-          }
-          let nascimento = "";
-          if (element.nascimento) {
-            nascimento = element.nascimento;
-          }
-          let data = "";
-          if (element.dataAgendamento) {
-            data = element.dataAgendamento;
-          }
-          let horario = "";
-          if (element.horaAgendamento) {
-            horario = element.horaAgendamento.replace("-", ":");
-          }
-          let convenio = "";
-          if (element.convenio) {
-            convenio = element.convenio;
-          }
-          let motivacao = "";
-          if (element.motivacao) {
-            motivacao = element.motivacao;
-          }
-          let exames = "";
-          if (element.exames) {
-            exames = element.exames;
-          }
-          let telPaciente;
-          if (element.telefone) {
-            telPaciente = element.telefone;
-          }
-          let whatsAppCel;
-          if (telefoneUnidade) {
-            whatsAppCel = JSON.stringify(telefoneUnidade);
-          }
-          let obs;
-          if (element.exames) {
-            obs = element.obs;
-          }
-          let cpf;
-          let complementoCpf = "";
-          if (element.cpf) {
-            cpf = element.cpf;
-            complementoCpf = "\n*CPF:* " + cpf;
-          }
-
-          let cancelData = "";
-          let agendData = "";
-          let enviarMsgSecretaria = true;
-          let motivoCancelamento;
-
-
-          // motivo cancelamento ------------
-          if (acao === "cancelar") {
-            console.log("entrou em acao === 'cancelar'");
-
-            const datamodificada = data.split("/")[2] + "-" +
-            data.split("/")[1] + "-" + data.split("/")[0];
-
-            const cancelSnap = await dbRef.
-                ref("DRM/agendamentoWhatsApp/operacional/" +
-                  "consultasCanceladas/unidades/" + unidade + "/" +
-                  datamodificada + "/" + horario).once("value");
-
-            console.log("cancelSnap:", JSON.stringify(cancelSnap.val()));
-            console.log("unidade:", unidade);
-            console.log("datamodificada:", datamodificada);
-            console.log("horario:", horario);
-
-            cancelData = cancelSnap.val() || {};
-
-            motivoCancelamento = cancelData.motivoCancelamento;
-            enviarMsgSecretaria = cancelData.enviarMsgSecretaria;
-
-            console.log("motivoCancelamento: " + motivoCancelamento);
-            console.log("enviarMsgSecretaria: " + enviarMsgSecretaria);
-          }
-
-
-          // enviar mensagem para secretaria em agendamento
-          if (acao === "agendar") {
-            const datamodificada = data.split("/")[2] + "-" +
-                data.split("/")[1] + "-" + data.split("/")[0];
-
-            const agendSnap = await dbRef.
-                ref("DRM/agendamentoWhatsApp/operacional/" +
-                  "consultasAgendadas/unidades/" + unidade + "/" +
-                  datamodificada + "/" + horario).once("value");
-
-            agendData = agendSnap.val() || {};
-
-            enviarMsgSecretaria = agendData.enviarMsgSecretaria;
-            console.log("enviarMsgSecretaria: " + enviarMsgSecretaria);
-          }
-
-          if (enviarMsgSecretaria === undefined ||
-                enviarMsgSecretaria === null ||
-                enviarMsgSecretaria === "") {
-            enviarMsgSecretaria = true;
-          }
-
-
-          let auxComplementoValor = "";
-          if (convenio === "Particular") {
-            //
-            // Calcula o somatório dos valores a pagar pelo paciente
-            const examesSnapshot = await admin.database()
-                .ref("DRM/agendamentoWhatsApp/configuracoes/exames")
-                .once("value");
-            const tabelaExames = examesSnapshot.val() || {};
-
-            let valorAPagarPaciente = 0;
-            if (Array.isArray(element.exames)) {
-              element.exames.forEach((nomeExame) => {
-                const conf = tabelaExames[nomeExame];
-                if (conf) {
-                  const preco = Number(conf.preco) || 0;
-                  valorAPagarPaciente += preco;
-                }
-              });
-            }
-            console.log("valorAPagarPaciente: " + valorAPagarPaciente);
-
-            auxComplementoValor = "\n*Valor:* R$ " +
-              valorAPagarPaciente + ",00";
-          }
-
-          const idade = calcularIdade(nascimento);
-          const diaSemana = diaSemanaDe(data);
-
-          if (whatsAppCel) {
-            let parametros = {};
-
-            // whatsAppCel = telefone da unidade
-            if (ambiente == "teste") {
-              // whatsAppCel = "5521997975125"; // tel vermelho
-              // whatsAppCel = "5521984934862"; // Alexandre
-              whatsAppCel = "5521971938840"; // Gabriel;
-              whatsAppCel = "5521972555867"; // Tel Teste;
-              parametros = {
-                whatsAppCel: whatsAppCel,
-                id: "3B74CE9AFF0D20904A9E9E548CC778EF",
-                token: "A8F754F1402CAE3625D5D578",
-
-              };
-            } else {
-              parametros = {
-                whatsAppCel: whatsAppCel,
-                id: "3D460A6CB6DA10A09FAD12D00F179132",
-                token: "1D2897F0A38EEEC81D2F66EE",
-
-              };
-            }
-            console.log("whatsAppCel (Tel Unidade):", whatsAppCel);
-
-            // if (ambiente === "teste") {
-            //   ambienteLink = "teste-b720c";
-            // } else {
-            //   ambienteLink = "oftautomacao-9b427";
-            // }
-
-            // === Gera o link de validação (fixo)
-
-            // const auxLink =
-            //   "https://us-central1-" + ambienteLink +".cloudfunctions.net/" +
-            //   "drmPacienteValidadoBtActions" +
-            //   `?telefone=${encodeURIComponent(telPaciente)}` +
-            //   `&unidade=${encodeURIComponent(unidade)}` +
-            //   `&data=${encodeURIComponent(data)}` +
-            //   `&hora=${encodeURIComponent(horario)}` +
-            //   `&paciente=${encodeURIComponent(paciente)}` +
-            //   `&convenio=${encodeURIComponent(convenio)}` +
-            //   `&telefoneUnidade=${encodeURIComponent(telefoneUnidade)}` +
-            //   `&diaSemana=${encodeURIComponent(diaSemana)}`;
-
-
-            // const validationLink = auxLink + "&acao=validar";
-            // const cancelLink = auxLink + "&acao=cancelar";
-
-            message1 = message1 +
-            "\nSegue abaixo os detalhes:" +
-            "\n" +
-            "\n*Data:* " + diaSemana + " " + data + " " + horario +
-            "\n*Paciente :* " + paciente + " (" + idade + " anos)" +
-            auxComplementoValor +
-            "\n*Convênio:* " + convenio +
-            "\n*Exames:* " + exames +
-            "\n*Motivacao:* " + motivacao +
-            "\n*Local:* " + unidade +
-            "\n*Telefone do Paciente:* " + telPaciente +
-            "\n*Nascimento:* " + nascimento +
-            complementoCpf +
-            "\n*Observações:* " + obs +
-            complemento;
-
-            let arrMessage = [];
-            let messagePaciente = "";
-            if ((message1.includes("CANCELAMENTO")) &&
-              (motivoCancelamento === "Não compareceu à consulta")) {
-              console.log("Entrou no pacientes faltosos DRM");
-              messagePaciente = "Olá! Aqui é do Dr. Melo. 😊" +
-                "\n\nNa data " + data + " às " + horario +
-                ", o(a) paciente " + paciente +
-                " tinha uma consulta agendada na unidade " + unidade + "." +
-                "\n\nVimos que não pôde comparecer. " +
-                "\n\nGostaria de agendar uma nova consulta?";
-
-              // se message = "", mensagem não é enviada
-              message1 = "";
-            }
-            if (enviarMsgSecretaria === false) {
-              console.log("Não enviar mensagem para a secretária");
-              message1 = "";
-            }
-
-
-            // para saber se há uma informação especifica dentro da variável
-            // if ((complemento.includes("IMPORTANTE")) &&
-            //   (whatsAppCel !== "5521994586099")) {
-            //   console.log("whatsAppCel: " + whatsAppCel);
-            //   arrMessage = [
-            //     {
-            //       phone: whatsAppCel,
-            //       message: message1,
-            //       buttonActions: [
-            //         {
-            //           type: "URL",
-            //           url: validationLink,
-            //           label: "Validar Agendamento",
-            //         },
-            //         {
-            //           type: "URL",
-            //           url: cancelLink,
-            //           label: "Cancelar Agendamento",
-            //         },
-            //       ],
-            //     },
-            //   ];
-            // } else {
-            //   console.log("NAO Entrou no botões de ação");
-            //   console.log("whatsAppCel: " + whatsAppCel);
-            //   arrMessage = [
-            //     {
-            //       phone: whatsAppCel,
-            //       message: message1,
-            //     },
-            //   ];
-            // }
-            console.log("telPaciente: " + telPaciente);
-            console.log("telefoneUnidade: " + whatsAppCel);
-
-            arrMessage = [
-              {
-                phone: whatsAppCel,
-                message: message1,
-              },
-              {
-                phone: telPaciente,
-                message: messagePaciente,
-              },
-            ];
-
-            const i = 0;
-            console.log("arrMessage:", arrMessage);
-            callZapiV3(arrMessage, parametros, i);
-          }
-
           return null;
         });
 
-exports.oft45AtendenteVirtualWA01Zapi =
+
+// NOVO ENVIO MENSAGENS KATIA ZAPI UNIFICADO
+exports.oft45AtendimentoWAKatiaZapi =
     functions.database.ref("OFT/45/agendamentoWhatsApp/operacional/" +
-      "consultasAgendadas/medicos/{medicos}/{dataAgendada}/{horaAgendada}")
+       "consultasAgendadas/medicos/{medicos}/" +
+       "{dataAgendamento}/{horaAgendamento}")
         .onWrite(async (change, context) => {
-          const dbRef = admin.database();
+          //
+          console.log("Entrou oft45AtendimentoWAKatiaZapi");
 
-          console.log("Entrou oft45AtendenteVirtualWA01Zapi");
+          const tipoMsg = "OFT/45";
 
-          // Converte "DD/MM/AAAA" → Date
-          const parseDate = (str) => {
-            const [d, m, y] = str.split("/");
-            return new Date(y, m - 1, d);
-          };
-
-          // Calcula idade em anos completos
-          const calcularIdade = (nascimentoStr) => {
-            if (!nascimentoStr) return "";
-            const nasc = parseDate(nascimentoStr);
-            const hoje = new Date();
-            let idade = hoje.getFullYear() - nasc.getFullYear();
-            const m = hoje.getMonth() - nasc.getMonth();
-            if (m < 0 || (m === 0 && hoje.getDate() < nasc.getDate())) {
-              idade--;
-            }
-            return idade;
-          };
-
-          // Retorna o dia da semana em PT-BR
-          const diaSemanaDe = (dataStr) => {
-            if (!dataStr) return "";
-            const dias = [
-              "Dom",
-              "Seg",
-              "Ter",
-              "Qua",
-              "Qui",
-              "Sex",
-              "Sab",
-            ];
-            return dias[parseDate(dataStr).getDay()];
-          };
-
-
-          let element = {};
-          let message1 = "";
-          // let complemento = "";
-          // let ambienteLink = "";
-
-          if (!change.after.exists() && change.before.exists()) {
-            element = change.before.val();
-            message1 = "📢 *Houve um CANCELAMENTO - Atendente Virtual 45* ";
-          } else {
-            // Verifica se a única mudança foi no campo "valid
-            const beforeVal = change.before.val();
-            const afterVal = change.after.val();
-
-            // Se só o campo "validado" mudou, não envia mensagem de novo
-            if ((beforeVal !== null) &&
-                (afterVal !== null) &&
-                (((beforeVal["validado"] === undefined) &&
-                (afterVal["validado"] !== undefined)) ||
-                ((beforeVal["confirmado"] === undefined) &&
-                (afterVal["confirmado"] !== undefined)))) {
-              console.log("Mudança apenas no campo " +
-                  "'validado' ou 'Confirmado'" +
-                          ". Ignorando...");
-              return null;
-            }
-
-            element = afterVal;
-            message1 = "📢 *Novo AGENDAMENTO - Atendente Virtual 45* ";
-            // complemento = "\n\n*IMPORTANTE:* Entre em contato com o " +
-            //   "paciente para obter demais dados e validar se o subplano " +
-            //   "é aceito pela clinica. \n\nApós o contato, se estiver " +
-            //   "tudo certo, clique em Validar Agendamento. \n\nCaso " +
-            //   "contrario clique em Cancelar Agendamento.";
+          try {
+            await envioMensagensKatiaZApi(tipoMsg, change);
+          } catch (err) {
+            console.error("Erro em oft45AtendimentoWAKatiaZapi:", err);
           }
-
-          let medico = "";
-          if (element.medico) {
-            medico = element.medico;
-          }
-          let unidade = "";
-          if (element.unidade) {
-            unidade = element.unidade;
-          }
-          console.log("unidade: " + unidade);
-
-          // Busca as configurações para obter o telefone da unidade
-          const configuracoesSnapshot = await dbRef.
-              ref("OFT/45/agendamentoWhatsApp/configuracoes/unidades/" +
-              unidade).once("value");
-          const configuracoes = configuracoesSnapshot.val();
-          const telefoneUnidade = configuracoes.whatsApp;
-
-          console.log("element:" + JSON.stringify(JSON.stringify(element)));
-          console.log("telefone unidade:" + JSON.stringify(telefoneUnidade));
-
-          let paciente = "";
-          if (element.nomePaciente) {
-            paciente = element.nomePaciente;
-          }
-          let nascimento = "";
-          if (element.nascimento) {
-            nascimento = element.nascimento;
-          }
-          let data = "";
-          if (element.dataAgendamento) {
-            data = element.dataAgendamento;
-          }
-          let horario = "";
-          if (element.horaAgendamento) {
-            horario = element.horaAgendamento.replace("-", ":");
-          }
-          let convenio = "";
-          if (element.convenio) {
-            convenio = element.convenio;
-          }
-          let motivacao = "";
-          if (element.motivacao) {
-            motivacao = element.motivacao;
-          }
-          let exames = "";
-          if (element.exames) {
-            exames = element.exames;
-          }
-          let telPaciente;
-          if (element.telefone) {
-            telPaciente = element.telefone;
-          }
-          let whatsAppCel;
-          if (telefoneUnidade) {
-            whatsAppCel = JSON.stringify(telefoneUnidade);
-          }
-          let obs;
-          if (element.exames) {
-            obs = element.exames;
-          }
-
-          let auxComplementoValor = "";
-          if (convenio === "Particular") {
-            // Calcula o somatório dos valores a pagar pelo paciente
-            const examesSnapshot = await admin.database()
-                .ref("DRM/agendamentoWhatsApp/configuracoes/exames")
-                .once("value");
-            const tabelaExames = examesSnapshot.val() || {};
-
-            let valorAPagarPaciente = 0;
-            if (Array.isArray(element.exames)) {
-              element.exames.forEach((nomeExame) => {
-                const conf = tabelaExames[nomeExame];
-                if (conf) {
-                  const preco = Number(conf.preco) || 0;
-                  valorAPagarPaciente += preco;
-                }
-              });
-            }
-            console.log("valorAPagarPaciente: " + valorAPagarPaciente);
-
-            auxComplementoValor = "\n*Valor:* R$ " +
-              valorAPagarPaciente + ",00";
-          }
-
-          const idade = calcularIdade(nascimento);
-          const diaSemana = diaSemanaDe(data);
-
-          if (whatsAppCel) {
-            let parametros = {};
-
-            // whatsAppCel = telefone da unidade
-            if (ambiente == "teste") {
-              // whatsAppCel = "5521997975125"; // tel vermelho
-              // whatsAppCel = "5521984934862"; // Alexandre
-              whatsAppCel = "5521971938840"; // Gabriel;
-              parametros = {
-                whatsAppCel: whatsAppCel,
-                // id: "3B74CE9AFF0D20904A9E9E548CC778EF",
-                // token: "A8F754F1402CAE3625D5D578",
-
-                id: "39C7A89881E470CC246252059E828D91",
-                token: "B1CA83DE10E84496AECE8028",
-
-              };
-            } else {
-              parametros = {
-                whatsAppCel: whatsAppCel,
-                id: "39C7A89881E470CC246252059E828D91",
-                token: "B1CA83DE10E84496AECE8028",
-
-              };
-            }
-            console.log("whatsAppCel (Tel Unidade):", whatsAppCel);
-
-            // if (ambiente === "teste") {
-            //   ambienteLink = "teste-b720c";
-            // } else {
-            //   ambienteLink = "oftautomacao-9b427";
-            // }
-
-            // === Gera o link de validação (fixo)
-
-            // const auxLink =
-            //   "https://us-central1-" + ambienteLink +".cloudfunctions.net/" +
-            //   "drmPacienteValidadoBtActions" +
-            //   `?telefone=${encodeURIComponent(telPaciente)}` +
-            //   `&unidade=${encodeURIComponent(medico)}` +
-            //   `&data=${encodeURIComponent(data)}` +
-            //   `&hora=${encodeURIComponent(horario)}` +
-            //   `&paciente=${encodeURIComponent(paciente)}` +
-            //   `&convenio=${encodeURIComponent(convenio)}` +
-            //   `&telefoneUnidade=${encodeURIComponent(telefoneUnidade)}` +
-            //   `&diaSemana=${encodeURIComponent(diaSemana)}`;
-
-
-            // const validationLink = auxLink + "&acao=validar";
-            // const cancelLink = auxLink + "&acao=cancelar";
-
-            message1 = message1 +
-            "\nSegue abaixo os detalhes:" +
-            "\n" +
-            "\n*Data:* " + diaSemana + " " + data + " " + horario +
-            "\n*Paciente :* " + paciente + " (" + idade + " anos)" +
-            auxComplementoValor +
-            "\n*Convênio:* " + convenio +
-            "\n*Nascimento:* " + nascimento +
-            "\n*Exames:* " + exames +
-            "\n*Motivacao:* " + motivacao +
-            "\n*Medico:* " + medico +
-            "\n*Telefone do Paciente:* " + telPaciente +
-            "\n*Observações:* " + obs;
-            // complemento;
-
-            let arrMessage = [];
-            // para saber se há uma informação especifica dentro da variável
-            // if ((complemento.includes("IMPORTANTE")) &&
-            //   (whatsAppCel !== "5521994586099")) {
-            //   console.log("whatsAppCel: " + whatsAppCel);
-            //   arrMessage = [
-            //     {
-            //       phone: whatsAppCel,
-            //       message: message1,
-            //       buttonActions: [
-            //         {
-            //           type: "URL",
-            //           url: validationLink,
-            //           label: "Validar Agendamento",
-            //         },
-            //         {
-            //           type: "URL",
-            //           url: cancelLink,
-            //           label: "Cancelar Agendamento",
-            //         },
-            //       ],
-            //     },
-            //   ];
-            // } else {
-
-            console.log("NAO Entrou no botões de ação");
-            console.log("whatsAppCel: " + whatsAppCel);
-            arrMessage = [
-              {
-                phone: whatsAppCel,
-                message: message1,
-              },
-            ];
-
-            const i = 0;
-            callZapiV3(arrMessage, parametros, i);
-          }
-
           return null;
         });
+
+/**
+ * @param {String} tipoMsg
+ * @param {object} change
+ * @return {Promise<null>}
+ */
+async function envioMensagensKatiaZApi(tipoMsg, change) {
+  const dbRef = admin.database();
+
+  // Converte "DD/MM/AAAA" → Date
+  const parseDate = (str) => {
+    const [d, m, y] = str.split("/");
+    return new Date(y, m - 1, d);
+  };
+
+  // Calcula idade em anos completos
+  const calcularIdade = (nascimentoStr) => {
+    if (!nascimentoStr) return "";
+    const nasc = parseDate(nascimentoStr);
+    const hoje = new Date();
+    let idade = hoje.getFullYear() - nasc.getFullYear();
+    const m = hoje.getMonth() - nasc.getMonth();
+    if (m < 0 || (m === 0 && hoje.getDate() < nasc.getDate())) {
+      idade--;
+    }
+    return idade;
+  };
+
+  // Retorna o dia da semana em PT-BR
+  const diaSemanaDe = (dataStr) => {
+    if (!dataStr) return "";
+    const dias = [
+      "Dom",
+      "Seg",
+      "Ter",
+      "Qua",
+      "Qui",
+      "Sex",
+      "Sab",
+    ];
+    return dias[parseDate(dataStr).getDay()];
+  };
+
+
+  let element = {};
+  let message1 = "";
+  let complemento = "";
+
+  let acao = null;
+  if (!change.after.exists() && change.before.exists()) {
+    acao = "cancelar";
+    element = change.before.val();
+
+    if (tipoMsg === "DRM") {
+      message1 = "📢 *Houve um CANCELAMENTO - Dr. Melo* ";
+    } else {
+      message1 = "📢 *Houve um CANCELAMENTO - Atendente Virtual 45* ";
+    }
+  } else {
+    acao = "agendar";
+    // Verifica se a única mudança foi no campo "valid
+    const beforeVal = change.before.val();
+    const afterVal = change.after.val();
+
+    // Se só o campo "validado" mudou, não envia mensagem de novo
+    if ((beforeVal !== null) &&
+        (afterVal !== null) &&
+        (((beforeVal["validado"] === undefined) &&
+        (afterVal["validado"] !== undefined)) ||
+        ((beforeVal["confirmado"] === undefined) &&
+        (afterVal["confirmado"] !== undefined)))) {
+      console.log("Mudança apenas no campo " +
+          "'validado' ou 'Confirmado'" +
+                  ". Ignorando...");
+      return null;
+    }
+
+    element = afterVal;
+
+    if (tipoMsg === "DRM") {
+      message1 = "📢 *Novo AGENDAMENTO - Dr. Melo* ";
+    } else {
+      message1 = "📢 *Novo AGENDAMENTO - Atendente Virtual 45* ";
+    }
+
+    complemento = "\n\n*IMPORTANTE:* Entre em contato com o " +
+      "paciente para obter demais dados e validar se o subplano " +
+      "é aceito pela clinica.";
+  }
+
+  let unidade = "";
+  if (element.unidade) {
+    unidade = element.unidade;
+  }
+
+  // Busca as configurações para obter o telefone da unidade
+  const configuracoesSnapshot = await dbRef.
+      ref(tipoMsg + "/agendamentoWhatsApp/configuracoes/unidades/" +
+      unidade).once("value");
+  const configuracoes = configuracoesSnapshot.val();
+  const telefoneUnidade = configuracoes.whatsApp;
+
+  console.log("element:" + JSON.stringify(JSON.stringify(element)));
+  console.log("telefone unidade:" + JSON.stringify(telefoneUnidade));
+
+  let paciente = "";
+  if (element.nomePaciente) {
+    paciente = element.nomePaciente;
+  }
+  let nascimento = "";
+  if (element.nascimento) {
+    nascimento = element.nascimento;
+  }
+  let medico = "";
+  if (element.medico) {
+    medico = element.medico;
+  }
+  let data = "";
+  if (element.dataAgendamento) {
+    data = element.dataAgendamento;
+  }
+  let horario = "";
+  if (element.horaAgendamento) {
+    horario = element.horaAgendamento.replace("-", ":");
+  }
+  let convenio = "";
+  if (element.convenio) {
+    convenio = element.convenio;
+  }
+  let motivacao = "";
+  if (element.motivacao) {
+    motivacao = element.motivacao;
+  }
+  let exames = "";
+  if (element.exames) {
+    exames = element.exames;
+  }
+  let telPaciente;
+  if (element.telefone) {
+    telPaciente = element.telefone;
+  }
+  let whatsAppCel;
+  if (telefoneUnidade) {
+    whatsAppCel = JSON.stringify(telefoneUnidade);
+  }
+  let complementoObs = "";
+  let obs;
+  if (element.obs) {
+    obs = element.obs;
+    complementoObs = "\n*Observações:* " + obs;
+    console.log("obs:", obs);
+  }
+  let cpf;
+  let complementoCpf = "";
+  if (element.cpf) {
+    cpf = element.cpf;
+    complementoCpf = "\n*CPF:* " + cpf;
+  }
+
+  let cancelData = "";
+  let agendData = "";
+  let enviarMsgSecretaria = true;
+  let motivoCancelamento;
+
+
+  // motivo cancelamento ------------
+  if (acao === "cancelar") {
+    console.log("entrou em acao === 'cancelar'");
+
+    const datamodificada = data.split("/")[2] + "-" +
+    data.split("/")[1] + "-" + data.split("/")[0];
+
+    let cancelSnap = "";
+    if (tipoMsg === "DRM") {
+      cancelSnap = await dbRef.
+          ref(tipoMsg + "/agendamentoWhatsApp/operacional/" +
+            "consultasCanceladas/unidades/" + unidade + "/" +
+            datamodificada + "/" + horario).once("value");
+    } else {
+      cancelSnap = await dbRef.
+          ref(tipoMsg + "/agendamentoWhatsApp/operacional/" +
+            "consultasCanceladas/medicos/" + medico + "/" +
+            datamodificada + "/" + horario).once("value");
+    }
+
+    console.log("cancelSnap:", JSON.stringify(cancelSnap.val()));
+    console.log("unidade:", unidade);
+    console.log("datamodificada:", datamodificada);
+    console.log("horario:", horario);
+
+    cancelData = cancelSnap.val() || {};
+
+    motivoCancelamento = cancelData.motivoCancelamento;
+    enviarMsgSecretaria = cancelData.enviarMsgSecretaria;
+
+    console.log("motivoCancelamento: " + motivoCancelamento);
+    console.log("CANC-enviarMsgSecretaria_telPaciente: " +
+      enviarMsgSecretaria + "_" + telPaciente);
+  }
+
+
+  // enviar mensagem para secretaria em agendamento
+  if (acao === "agendar") {
+    const datamodificada = data.split("/")[2] + "-" +
+        data.split("/")[1] + "-" + data.split("/")[0];
+
+    let agendSnap = "";
+    if (tipoMsg === "DRM") {
+      agendSnap = await dbRef.
+          ref(tipoMsg + "/agendamentoWhatsApp/operacional/" +
+            "consultasAgendadas/unidades/" + unidade + "/" +
+            datamodificada + "/" + horario).once("value");
+    } else {
+      agendSnap = await dbRef.
+          ref(tipoMsg + "/agendamentoWhatsApp/operacional/" +
+            "consultasAgendadas/medicos/" + medico + "/" +
+            datamodificada + "/" + horario).once("value");
+    }
+
+    agendData = agendSnap.val() || {};
+
+    enviarMsgSecretaria = agendData.enviarMsgSecretaria;
+    console.log("AGEN-enviarMsgSecretaria_telPaciente: " +
+      enviarMsgSecretaria + "_" + telPaciente);
+  }
+
+  if (enviarMsgSecretaria === undefined) {
+    if (element && element.enviarMsgSecretaria !== undefined) {
+      enviarMsgSecretaria = element.enviarMsgSecretaria; // true ou false
+    } else {
+      enviarMsgSecretaria = true; // default
+    }
+  }
+
+
+  let auxComplementoValor = "";
+  if (convenio === "Particular") {
+    //
+    // Calcula o somatório dos valores a pagar pelo paciente
+    const examesSnapshot = await admin.database()
+        .ref(tipoMsg + "/agendamentoWhatsApp/configuracoes/exames")
+        .once("value");
+    const tabelaExames = examesSnapshot.val() || {};
+
+    let valorAPagarPaciente = 0;
+    if (Array.isArray(element.exames)) {
+      element.exames.forEach((nomeExame) => {
+        const conf = tabelaExames[nomeExame];
+        if (conf) {
+          let preco;
+          if (tipoMsg === "DRM") {
+            preco = Number(conf.preco) || 0;
+          } else {
+            preco = Number(conf.precoDoisOlhos) || 0;
+          }
+          valorAPagarPaciente += preco;
+        }
+      });
+    }
+    console.log("valorAPagarPaciente: " + valorAPagarPaciente);
+
+    auxComplementoValor = "\n*Valor:* R$ " +
+      valorAPagarPaciente + ",00";
+  }
+
+  const idade = calcularIdade(nascimento);
+  const diaSemana = diaSemanaDe(data);
+
+  if (whatsAppCel) {
+    let parametros = {};
+
+    // whatsAppCel = telefone da unidade
+    if (ambiente == "teste") {
+      // whatsAppCel = "5521997975125"; // tel vermelho
+      // whatsAppCel = "5521984934862"; // Alexandre
+      whatsAppCel = "5521971938840"; // Gabriel;
+      whatsAppCel = "5521972555867"; // Tel Teste;
+      parametros = {
+        whatsAppCel: whatsAppCel,
+        id: "3B74CE9AFF0D20904A9E9E548CC778EF",
+        token: "A8F754F1402CAE3625D5D578",
+
+      };
+    } else {
+      if (tipoMsg === "DRM") {
+        parametros = {
+          whatsAppCel: whatsAppCel,
+          id: "3D460A6CB6DA10A09FAD12D00F179132",
+          token: "1D2897F0A38EEEC81D2F66EE",
+        };
+      } else {
+        parametros = {
+          whatsAppCel: whatsAppCel,
+          id: "39C7A89881E470CC246252059E828D91",
+          token: "B1CA83DE10E84496AECE8028",
+        };
+      }
+    }
+    console.log("whatsAppCel (Tel Unidade):", whatsAppCel);
+
+    let messege2 = "";
+    if (tipoMsg === "DRM") {
+      messege2 = "\n*Local:* " + unidade;
+    } else {
+      messege2 = "\n*Medico:* " + medico;
+    }
+
+
+    message1 = message1 +
+      "\nSegue abaixo os detalhes:" +
+      "\n" +
+      "\n*Data:* " + diaSemana + " " + data + " " + horario +
+      "\n*Paciente :* " + paciente + " (" + idade + " anos)" +
+      auxComplementoValor +
+      "\n*Convênio:* " + convenio +
+      "\n*Exames:* " + exames +
+      "\n*Motivacao:* " + motivacao +
+      messege2 +
+      "\n*Telefone do Paciente:* " + telPaciente +
+      "\n*Nascimento:* " + nascimento +
+      complementoCpf +
+      complementoObs +
+      complemento;
+
+    let arrMessage = [];
+    let messagePaciente = "";
+    if ((message1.includes("CANCELAMENTO")) &&
+      (motivoCancelamento === "Não compareceu à consulta")) {
+      //
+      let messagePaciente2 = "";
+      if (tipoMsg === "DRM") {
+        messagePaciente2 = "do Dr. Melo";
+      } else {
+        messagePaciente2 = "da Oftalmo Day";
+      }
+      console.log("Entrou no pacientes faltosos " + tipoMsg);
+      messagePaciente = "Olá! Aqui é "+ messagePaciente2 +". 😊" +
+        "\n\nNa data " + data + " às " + horario +
+        ", o(a) paciente " + paciente +
+        " tinha uma consulta agendada na unidade " + unidade + "." +
+        "\n\nVimos que não pôde comparecer. " +
+        "\n\nGostaria de agendar uma nova consulta?";
+
+      // se message = "", mensagem não é enviada
+      message1 = "";
+    }
+    if (enviarMsgSecretaria === false) {
+      console.log("Não enviar mensagem para a secretária");
+      message1 = "";
+    }
+
+    console.log("telPaciente: " + telPaciente);
+    console.log("telefoneUnidade: " + whatsAppCel);
+
+    arrMessage = [
+      {
+        phone: whatsAppCel,
+        message: message1,
+      },
+      {
+        phone: telPaciente,
+        message: messagePaciente,
+      },
+    ];
+
+    const i = 0;
+    console.log("arrMessage:", arrMessage);
+    callZapiV3(arrMessage, parametros, i);
+  }
+
+  return null;
+}
+
+
+// exports.drmAtendimentoWAKatiaZapi =
+//     functions.database.ref("DRM/agendamentoWhatsApp/operacional/" +
+//       "consultasAgendadas/unidades/{unidade}/" +
+//       "{dataAgendamento}/{horaAgendamento}")
+//         .onWrite(async (change, context) => {
+//           const dbRef = admin.database();
+
+//           console.log("Entrou drmAtendimentoWAKatiaZapi");
+
+//           // Converte "DD/MM/AAAA" → Date
+//           const parseDate = (str) => {
+//             const [d, m, y] = str.split("/");
+//             return new Date(y, m - 1, d);
+//           };
+
+//           // Calcula idade em anos completos
+//           const calcularIdade = (nascimentoStr) => {
+//             if (!nascimentoStr) return "";
+//             const nasc = parseDate(nascimentoStr);
+//             const hoje = new Date();
+//             let idade = hoje.getFullYear() - nasc.getFullYear();
+//             const m = hoje.getMonth() - nasc.getMonth();
+//             if (m < 0 || (m === 0 && hoje.getDate() < nasc.getDate())) {
+//               idade--;
+//             }
+//             return idade;
+//           };
+
+//           // Retorna o dia da semana em PT-BR
+//           const diaSemanaDe = (dataStr) => {
+//             if (!dataStr) return "";
+//             const dias = [
+//               "Dom",
+//               "Seg",
+//               "Ter",
+//               "Qua",
+//               "Qui",
+//               "Sex",
+//               "Sab",
+//             ];
+//             return dias[parseDate(dataStr).getDay()];
+//           };
+
+
+//           let element = {};
+//           let message1 = "";
+//           let complemento = "";
+//           // let ambienteLink = "";
+
+//           let acao = null;
+//           if (!change.after.exists() && change.before.exists()) {
+//             acao = "cancelar";
+//             element = change.before.val();
+//             message1 = "📢 *Houve um CANCELAMENTO - Dr. Melo* ";
+//           } else {
+//             acao = "agendar";
+//             // Verifica se a única mudança foi no campo "valid
+//             const beforeVal = change.before.val();
+//             const afterVal = change.after.val();
+
+//             // Se só o campo "validado" mudou, não envia mensagem de novo
+//             if ((beforeVal !== null) &&
+//                 (afterVal !== null) &&
+//                 (((beforeVal["validado"] === undefined) &&
+//                 (afterVal["validado"] !== undefined)) ||
+//                 ((beforeVal["confirmado"] === undefined) &&
+//                 (afterVal["confirmado"] !== undefined)))) {
+//               console.log("Mudança apenas no campo " +
+//                   "'validado' ou 'Confirmado'" +
+//                           ". Ignorando...");
+//               return null;
+//             }
+
+//             element = afterVal;
+//             message1 = "📢 *Novo AGENDAMENTO - Dr. Melo* ";
+//             // complemento = "\n\n*IMPORTANTE:* Entre em contato com o " +
+//           //   "paciente para obter demais dados e validar se o subplano " +
+//             //   "é aceito pela clinica. \n\nApós o contato, se estiver " +
+//             //   "tudo certo, clique em Validar Agendamento. \n\nCaso " +
+//             //   "contrario clique em Cancelar Agendamento.";
+
+//             complemento = "\n\n*IMPORTANTE:* Entre em contato com o " +
+//               "paciente para obter demais dados e validar se o subplano " +
+//               "é aceito pela clinica.";
+//           }
+
+//           let unidade = "";
+//           if (element.unidade) {
+//             unidade = element.unidade;
+//           }
+//           // Busca as configurações para obter o telefone da unidade
+//           const configuracoesSnapshot = await dbRef.
+//               ref("DRM/agendamentoWhatsApp/configuracoes/unidades/" +
+//               unidade ).once("value");
+//           const configuracoes = configuracoesSnapshot.val();
+//           const telefoneUnidade = configuracoes.whatsApp;
+
+//           console.log("element:" + JSON.stringify(JSON.stringify(element)));
+//           console.log("telefone unidade:" + JSON.stringify(telefoneUnidade));
+
+//           let paciente = "";
+//           if (element.nomePaciente) {
+//             paciente = element.nomePaciente;
+//           }
+//           let nascimento = "";
+//           if (element.nascimento) {
+//             nascimento = element.nascimento;
+//           }
+//           let data = "";
+//           if (element.dataAgendamento) {
+//             data = element.dataAgendamento;
+//           }
+//           let horario = "";
+//           if (element.horaAgendamento) {
+//             horario = element.horaAgendamento.replace("-", ":");
+//           }
+//           let convenio = "";
+//           if (element.convenio) {
+//             convenio = element.convenio;
+//           }
+//           let motivacao = "";
+//           if (element.motivacao) {
+//             motivacao = element.motivacao;
+//           }
+//           let exames = "";
+//           if (element.exames) {
+//             exames = element.exames;
+//           }
+//           let telPaciente;
+//           if (element.telefone) {
+//             telPaciente = element.telefone;
+//           }
+//           let whatsAppCel;
+//           if (telefoneUnidade) {
+//             whatsAppCel = JSON.stringify(telefoneUnidade);
+//           }
+//           let obs;
+//           if (element.exames) {
+//             obs = element.obs;
+//           }
+//           let cpf;
+//           let complementoCpf = "";
+//           if (element.cpf) {
+//             cpf = element.cpf;
+//             complementoCpf = "\n*CPF:* " + cpf;
+//           }
+
+//           let cancelData = "";
+//           let agendData = "";
+//           let enviarMsgSecretaria = true;
+//           let motivoCancelamento;
+
+
+//           // motivo cancelamento ------------
+//           if (acao === "cancelar") {
+//             console.log("entrou em acao === 'cancelar'");
+
+//             const datamodificada = data.split("/")[2] + "-" +
+//             data.split("/")[1] + "-" + data.split("/")[0];
+
+//             const cancelSnap = await dbRef.
+//                 ref("DRM/agendamentoWhatsApp/operacional/" +
+//                   "consultasCanceladas/unidades/" + unidade + "/" +
+//                   datamodificada + "/" + horario).once("value");
+
+//             console.log("cancelSnap:", JSON.stringify(cancelSnap.val()));
+//             console.log("unidade:", unidade);
+//             console.log("datamodificada:", datamodificada);
+//             console.log("horario:", horario);
+
+//             cancelData = cancelSnap.val() || {};
+
+//             motivoCancelamento = cancelData.motivoCancelamento;
+//             enviarMsgSecretaria = cancelData.enviarMsgSecretaria;
+
+//             console.log("motivoCancelamento: " + motivoCancelamento);
+//             console.log("CANC-enviarMsgSecretaria_telPaciente: " +
+//               enviarMsgSecretaria + "_" + telPaciente);
+//           }
+
+
+//           // enviar mensagem para secretaria em agendamento
+//           if (acao === "agendar") {
+//             const datamodificada = data.split("/")[2] + "-" +
+//                 data.split("/")[1] + "-" + data.split("/")[0];
+
+//             const agendSnap = await dbRef.
+//                 ref("DRM/agendamentoWhatsApp/operacional/" +
+//                   "consultasAgendadas/unidades/" + unidade + "/" +
+//                   datamodificada + "/" + horario).once("value");
+
+//             agendData = agendSnap.val() || {};
+
+//             enviarMsgSecretaria = agendData.enviarMsgSecretaria;
+//             console.log("AGEN-enviarMsgSecretaria_telPaciente: " +
+//               enviarMsgSecretaria + "_" + telPaciente);
+//           }
+
+//           if (enviarMsgSecretaria === undefined ||
+//                 enviarMsgSecretaria === null ||
+//                 enviarMsgSecretaria === "") {
+//             enviarMsgSecretaria = true;
+//           }
+
+
+//           let auxComplementoValor = "";
+//           if (convenio === "Particular") {
+//             //
+//             // Calcula o somatório dos valores a pagar pelo paciente
+//             const examesSnapshot = await admin.database()
+//                 .ref("DRM/agendamentoWhatsApp/configuracoes/exames")
+//                 .once("value");
+//             const tabelaExames = examesSnapshot.val() || {};
+
+//             let valorAPagarPaciente = 0;
+//             if (Array.isArray(element.exames)) {
+//               element.exames.forEach((nomeExame) => {
+//                 const conf = tabelaExames[nomeExame];
+//                 if (conf) {
+//                   const preco = Number(conf.preco) || 0;
+//                   valorAPagarPaciente += preco;
+//                 }
+//               });
+//             }
+//             console.log("valorAPagarPaciente: " + valorAPagarPaciente);
+
+//             auxComplementoValor = "\n*Valor:* R$ " +
+//               valorAPagarPaciente + ",00";
+//           }
+
+//           const idade = calcularIdade(nascimento);
+//           const diaSemana = diaSemanaDe(data);
+
+//           if (whatsAppCel) {
+//             let parametros = {};
+
+//             // whatsAppCel = telefone da unidade
+//             if (ambiente == "teste") {
+//               // whatsAppCel = "5521997975125"; // tel vermelho
+//               // whatsAppCel = "5521984934862"; // Alexandre
+//               whatsAppCel = "5521971938840"; // Gabriel;
+//               whatsAppCel = "5521972555867"; // Tel Teste;
+//               parametros = {
+//                 whatsAppCel: whatsAppCel,
+//                 id: "3B74CE9AFF0D20904A9E9E548CC778EF",
+//                 token: "A8F754F1402CAE3625D5D578",
+
+//               };
+//             } else {
+//               parametros = {
+//                 whatsAppCel: whatsAppCel,
+//                 id: "3D460A6CB6DA10A09FAD12D00F179132",
+//                 token: "1D2897F0A38EEEC81D2F66EE",
+
+//               };
+//             }
+//             console.log("whatsAppCel (Tel Unidade):", whatsAppCel);
+
+//             // if (ambiente === "teste") {
+//             //   ambienteLink = "teste-b720c";
+//             // } else {
+//             //   ambienteLink = "oftautomacao-9b427";
+//             // }
+
+//             // === Gera o link de validação (fixo)
+
+//             // const auxLink =
+//             //   "https://us-central1-" + ambienteLink +".cloudfunctions.net/" +
+//             //   "drmPacienteValidadoBtActions" +
+//             //   `?telefone=${encodeURIComponent(telPaciente)}` +
+//             //   `&unidade=${encodeURIComponent(unidade)}` +
+//             //   `&data=${encodeURIComponent(data)}` +
+//             //   `&hora=${encodeURIComponent(horario)}` +
+//             //   `&paciente=${encodeURIComponent(paciente)}` +
+//             //   `&convenio=${encodeURIComponent(convenio)}` +
+//             //   `&telefoneUnidade=${encodeURIComponent(telefoneUnidade)}` +
+//             //   `&diaSemana=${encodeURIComponent(diaSemana)}`;
+
+
+//             // const validationLink = auxLink + "&acao=validar";
+//             // const cancelLink = auxLink + "&acao=cancelar";
+
+//             message1 = message1 +
+//             "\nSegue abaixo os detalhes:" +
+//             "\n" +
+//             "\n*Data:* " + diaSemana + " " + data + " " + horario +
+//             "\n*Paciente :* " + paciente + " (" + idade + " anos)" +
+//             auxComplementoValor +
+//             "\n*Convênio:* " + convenio +
+//             "\n*Exames:* " + exames +
+//             "\n*Motivacao:* " + motivacao +
+//             "\n*Local:* " + unidade +
+//             "\n*Telefone do Paciente:* " + telPaciente +
+//             "\n*Nascimento:* " + nascimento +
+//             complementoCpf +
+//             "\n*Observações:* " + obs +
+//             complemento;
+
+//             let arrMessage = [];
+//             let messagePaciente = "";
+//             if ((message1.includes("CANCELAMENTO")) &&
+//               (motivoCancelamento === "Não compareceu à consulta")) {
+//               console.log("Entrou no pacientes faltosos DRM");
+//               messagePaciente = "Olá! Aqui é do Dr. Melo. 😊" +
+//                 "\n\nNa data " + data + " às " + horario +
+//                 ", o(a) paciente " + paciente +
+//                 " tinha uma consulta agendada na unidade " + unidade + "." +
+//                 "\n\nVimos que não pôde comparecer. " +
+//                 "\n\nGostaria de agendar uma nova consulta?";
+
+//               // se message = "", mensagem não é enviada
+//               message1 = "";
+//             }
+//             if (enviarMsgSecretaria === false) {
+//               console.log("Não enviar mensagem para a secretária");
+//               message1 = "";
+//             }
+
+
+//             // para saber se há uma informação especifica dentro da variável
+//             // if ((complemento.includes("IMPORTANTE")) &&
+//             //   (whatsAppCel !== "5521994586099")) {
+//             //   console.log("whatsAppCel: " + whatsAppCel);
+//             //   arrMessage = [
+//             //     {
+//             //       phone: whatsAppCel,
+//             //       message: message1,
+//             //       buttonActions: [
+//             //         {
+//             //           type: "URL",
+//             //           url: validationLink,
+//             //           label: "Validar Agendamento",
+//             //         },
+//             //         {
+//             //           type: "URL",
+//             //           url: cancelLink,
+//             //           label: "Cancelar Agendamento",
+//             //         },
+//             //       ],
+//             //     },
+//             //   ];
+//             // } else {
+//             //   console.log("NAO Entrou no botões de ação");
+//             //   console.log("whatsAppCel: " + whatsAppCel);
+//             //   arrMessage = [
+//             //     {
+//             //       phone: whatsAppCel,
+//             //       message: message1,
+//             //     },
+//             //   ];
+//             // }
+//             console.log("telPaciente: " + telPaciente);
+//             console.log("telefoneUnidade: " + whatsAppCel);
+
+//             arrMessage = [
+//               {
+//                 phone: whatsAppCel,
+//                 message: message1,
+//               },
+//               {
+//                 phone: telPaciente,
+//                 message: messagePaciente,
+//               },
+//             ];
+
+//             const i = 0;
+//             console.log("arrMessage:", arrMessage);
+//             callZapiV3(arrMessage, parametros, i);
+//           }
+
+//           return null;
+//         });
+
+// ANTIGA KATIAZAPI 45
+// exports.oft45AtendimentoWAKatiaZapi =
+//     functions.database.ref("OFT/45/agendamentoWhatsApp/operacional/" +
+//       "consultasAgendadas/medicos/{medicos}/{dataAgendada}/{horaAgendada}")
+//         .onWrite(async (change, context) => {
+//           const dbRef = admin.database();
+
+//           console.log("Entrou oft45AtendenteVirtualWA01Zapi");
+
+//           // Converte "DD/MM/AAAA" → Date
+//           const parseDate = (str) => {
+//             const [d, m, y] = str.split("/");
+//             return new Date(y, m - 1, d);
+//           };
+
+//           // Calcula idade em anos completos
+//           const calcularIdade = (nascimentoStr) => {
+//             if (!nascimentoStr) return "";
+//             const nasc = parseDate(nascimentoStr);
+//             const hoje = new Date();
+//             let idade = hoje.getFullYear() - nasc.getFullYear();
+//             const m = hoje.getMonth() - nasc.getMonth();
+//             if (m < 0 || (m === 0 && hoje.getDate() < nasc.getDate())) {
+//               idade--;
+//             }
+//             return idade;
+//           };
+
+//           // Retorna o dia da semana em PT-BR
+//           const diaSemanaDe = (dataStr) => {
+//             if (!dataStr) return "";
+//             const dias = [
+//               "Dom",
+//               "Seg",
+//               "Ter",
+//               "Qua",
+//               "Qui",
+//               "Sex",
+//               "Sab",
+//             ];
+//             return dias[parseDate(dataStr).getDay()];
+//           };
+
+
+//           let element = {};
+//           let message1 = "";
+//           // let complemento = "";
+//           // let ambienteLink = "";
+
+//           if (!change.after.exists() && change.before.exists()) {
+//             element = change.before.val();
+//             message1 = "📢 *Houve um CANCELAMENTO - Atendente Virtual 45* ";
+//           } else {
+//             // Verifica se a única mudança foi no campo "valid
+//             const beforeVal = change.before.val();
+//             const afterVal = change.after.val();
+
+//             // Se só o campo "validado" mudou, não envia mensagem de novo
+//             if ((beforeVal !== null) &&
+//                 (afterVal !== null) &&
+//                 (((beforeVal["validado"] === undefined) &&
+//                 (afterVal["validado"] !== undefined)) ||
+//                 ((beforeVal["confirmado"] === undefined) &&
+//                 (afterVal["confirmado"] !== undefined)))) {
+//               console.log("Mudança apenas no campo " +
+//                   "'validado' ou 'Confirmado'" +
+//                           ". Ignorando...");
+//               return null;
+//             }
+
+//             element = afterVal;
+//             message1 = "📢 *Novo AGENDAMENTO - Atendente Virtual 45* ";
+//             // complemento = "\n\n*IMPORTANTE:* Entre em contato com o " +
+//           //   "paciente para obter demais dados e validar se o subplano " +
+//             //   "é aceito pela clinica. \n\nApós o contato, se estiver " +
+//             //   "tudo certo, clique em Validar Agendamento. \n\nCaso " +
+//             //   "contrario clique em Cancelar Agendamento.";
+//           }
+
+//           let medico = "";
+//           if (element.medico) {
+//             medico = element.medico;
+//           }
+//           let unidade = "";
+//           if (element.unidade) {
+//             unidade = element.unidade;
+//           }
+//           console.log("unidade: " + unidade);
+
+//           // Busca as configurações para obter o telefone da unidade
+//           const configuracoesSnapshot = await dbRef.
+//               ref("OFT/45/agendamentoWhatsApp/configuracoes/unidades/" +
+//               unidade).once("value");
+//           const configuracoes = configuracoesSnapshot.val();
+//           const telefoneUnidade = configuracoes.whatsApp;
+
+//           console.log("element:" + JSON.stringify(JSON.stringify(element)));
+//           console.log("telefone unidade:" + JSON.stringify(telefoneUnidade));
+
+//           let paciente = "";
+//           if (element.nomePaciente) {
+//             paciente = element.nomePaciente;
+//           }
+//           let nascimento = "";
+//           if (element.nascimento) {
+//             nascimento = element.nascimento;
+//           }
+//           let data = "";
+//           if (element.dataAgendamento) {
+//             data = element.dataAgendamento;
+//           }
+//           let horario = "";
+//           if (element.horaAgendamento) {
+//             horario = element.horaAgendamento.replace("-", ":");
+//           }
+//           let convenio = "";
+//           if (element.convenio) {
+//             convenio = element.convenio;
+//           }
+//           let motivacao = "";
+//           if (element.motivacao) {
+//             motivacao = element.motivacao;
+//           }
+//           let exames = "";
+//           if (element.exames) {
+//             exames = element.exames;
+//           }
+//           let telPaciente;
+//           if (element.telefone) {
+//             telPaciente = element.telefone;
+//           }
+//           let whatsAppCel;
+//           if (telefoneUnidade) {
+//             whatsAppCel = JSON.stringify(telefoneUnidade);
+//           }
+//           let obs;
+//           if (element.exames) {
+//             obs = element.exames;
+//           }
+
+//           let auxComplementoValor = "";
+//           if (convenio === "Particular") {
+//             // Calcula o somatório dos valores a pagar pelo paciente
+//             const examesSnapshot = await admin.database()
+//                 .ref("DRM/agendamentoWhatsApp/configuracoes/exames")
+//                 .once("value");
+//             const tabelaExames = examesSnapshot.val() || {};
+
+//             let valorAPagarPaciente = 0;
+//             if (Array.isArray(element.exames)) {
+//               element.exames.forEach((nomeExame) => {
+//                 const conf = tabelaExames[nomeExame];
+//                 if (conf) {
+//                   const preco = Number(conf.preco) || 0;
+//                   valorAPagarPaciente += preco;
+//                 }
+//               });
+//             }
+//             console.log("valorAPagarPaciente: " + valorAPagarPaciente);
+
+//             auxComplementoValor = "\n*Valor:* R$ " +
+//               valorAPagarPaciente + ",00";
+//           }
+
+//           const idade = calcularIdade(nascimento);
+//           const diaSemana = diaSemanaDe(data);
+
+//           if (whatsAppCel) {
+//             let parametros = {};
+
+//             // whatsAppCel = telefone da unidade
+//             if (ambiente == "teste") {
+//               // whatsAppCel = "5521997975125"; // tel vermelho
+//               // whatsAppCel = "5521984934862"; // Alexandre
+//               whatsAppCel = "5521971938840"; // Gabriel;
+//               parametros = {
+//                 whatsAppCel: whatsAppCel,
+//                 // id: "3B74CE9AFF0D20904A9E9E548CC778EF",
+//                 // token: "A8F754F1402CAE3625D5D578",
+
+//                 id: "39C7A89881E470CC246252059E828D91",
+//                 token: "B1CA83DE10E84496AECE8028",
+
+//               };
+//             } else {
+//               parametros = {
+//                 whatsAppCel: whatsAppCel,
+//                 id: "39C7A89881E470CC246252059E828D91",
+//                 token: "B1CA83DE10E84496AECE8028",
+
+//               };
+//             }
+//             console.log("whatsAppCel (Tel Unidade):", whatsAppCel);
+
+//             // if (ambiente === "teste") {
+//             //   ambienteLink = "teste-b720c";
+//             // } else {
+//             //   ambienteLink = "oftautomacao-9b427";
+//             // }
+
+//             // === Gera o link de validação (fixo)
+
+//             // const auxLink =
+//             //   "https://us-central1-" + ambienteLink +".cloudfunctions.net/" +
+//             //   "drmPacienteValidadoBtActions" +
+//             //   `?telefone=${encodeURIComponent(telPaciente)}` +
+//             //   `&unidade=${encodeURIComponent(medico)}` +
+//             //   `&data=${encodeURIComponent(data)}` +
+//             //   `&hora=${encodeURIComponent(horario)}` +
+//             //   `&paciente=${encodeURIComponent(paciente)}` +
+//             //   `&convenio=${encodeURIComponent(convenio)}` +
+//             //   `&telefoneUnidade=${encodeURIComponent(telefoneUnidade)}` +
+//             //   `&diaSemana=${encodeURIComponent(diaSemana)}`;
+
+
+//             // const validationLink = auxLink + "&acao=validar";
+//             // const cancelLink = auxLink + "&acao=cancelar";
+
+//             message1 = message1 +
+//             "\nSegue abaixo os detalhes:" +
+//             "\n" +
+//             "\n*Data:* " + diaSemana + " " + data + " " + horario +
+//             "\n*Paciente :* " + paciente + " (" + idade + " anos)" +
+//             auxComplementoValor +
+//             "\n*Convênio:* " + convenio +
+//             "\n*Nascimento:* " + nascimento +
+//             "\n*Exames:* " + exames +
+//             "\n*Motivacao:* " + motivacao +
+//             "\n*Medico:* " + medico +
+//             "\n*Telefone do Paciente:* " + telPaciente +
+//             "\n*Observações:* " + obs;
+//             // complemento;
+
+//             let arrMessage = [];
+//             // para saber se há uma informação especifica dentro da variável
+//             // if ((complemento.includes("IMPORTANTE")) &&
+//             //   (whatsAppCel !== "5521994586099")) {
+//             //   console.log("whatsAppCel: " + whatsAppCel);
+//             //   arrMessage = [
+//             //     {
+//             //       phone: whatsAppCel,
+//             //       message: message1,
+//             //       buttonActions: [
+//             //         {
+//             //           type: "URL",
+//             //           url: validationLink,
+//             //           label: "Validar Agendamento",
+//             //         },
+//             //         {
+//             //           type: "URL",
+//             //           url: cancelLink,
+//             //           label: "Cancelar Agendamento",
+//             //         },
+//             //       ],
+//             //     },
+//             //   ];
+//             // } else {
+
+//             console.log("NAO Entrou no botões de ação");
+//             console.log("whatsAppCel: " + whatsAppCel);
+//             arrMessage = [
+//               {
+//                 phone: whatsAppCel,
+//                 message: message1,
+//               },
+//             ];
+
+//             const i = 0;
+//             callZapiV3(arrMessage, parametros, i);
+//           }
+
+//           return null;
+//         });
 
 
 exports.obterLogsPorTelefone = functions.https
@@ -17325,3 +17879,138 @@ exports.ChamarLerimagemReceituario = functions.https
         text: resultado,
       });
     });
+
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+const ExcelJS = require("exceljs");
+
+// ===============================================
+// Geração de Demonstrativo ASA em Excel via HTTPS
+// ===============================================
+exports.asaDemonstrativoExcel = functions
+    .runWith({timeoutSeconds: 540, memory: "1GB"})
+    .https.onRequest((req, res) => {
+      cors(req, res, async () => {
+        try {
+          // ============================================
+          // LER O NÚMERO DO DEMONSTRATIVO DO REALTIME DB
+          // ============================================
+          const snap = await admin
+              .database()
+              .ref("/OFT/45/demonstrativoAsaCompleto")
+              .once("value");
+
+          const dbData = snap.val();
+
+          if (!dbData || !dbData.numDemonstrativo) {
+            res.status(400).json({
+              error:
+                "O campo numDemonstrativo não foi " +
+                "encontrado em /OFT/45/demonstrativoAsaCompleto",
+            });
+            return;
+          }
+
+          // O valor vem como string ("220047")
+          const numDemonstrativo = dbData.numDemonstrativo;
+          const idDemonstrativo = parseInt(numDemonstrativo, 10);
+
+          console.log(
+              "[asaDemonstrativoExcel] numDemonstrativo lido do Firebase:",
+              idDemonstrativo);
+
+          // ============================================
+          // CONSULTAR SQL SERVER
+          // ============================================
+          const pool = await sqlConnection.connect(sqlConfig);
+
+          const sqlQuery = `
+            SELECT *
+            FROM dbo.vw_Excel_Fat_DemonstrativoRecebimento_Completa
+            WHERE IDDemonstrativoRecebimento = @IDDemonstrativoRecebimento
+            ORDER BY Pessoa, Descricao
+          `;
+
+          // const sqlQuery = `
+          //   SELECT *,
+          //     CAST(NumeroGuia AS VARCHAR(50)) AS NumeroGuia
+          //   FROM dbo.vw_Excel_Fat_DemonstrativoRecebimento_Completa
+          //   WHERE IDDemonstrativoRecebimento = @IDDemonstrativoRecebimento
+          //   ORDER BY Pessoa, Descricao
+          // `;
+
+
+          const result = await pool
+              .request()
+              .input(
+                  "IDDemonstrativoRecebimento", sqlConnection.Int,
+                  idDemonstrativo).query(sqlQuery);
+
+          const rows = result.recordset || [];
+
+          if (!rows.length) {
+            res.status(404).json({
+              error: `Nenhum registro encontrado " +
+              "para o demonstrativo ${idDemonstrativo}.`,
+            });
+            return;
+          }
+
+          console.log(
+              `[asaDemonstrativoExcel] Registros encontrados: ${rows.length}`);
+
+          // ============================================
+          // GERAR EXCEL
+          // ============================================
+          const workbook = new ExcelJS.Workbook();
+          const sheet = workbook.addWorksheet("Demonstrativo");
+
+          sheet.addRow(["Demonstr.", idDemonstrativo]);
+          const columnNames = Object.keys(rows[0]);
+          sheet.addRow(columnNames);
+
+          rows.forEach((row) => {
+            const values = columnNames.map((col) => row[col]);
+            sheet.addRow(values);
+          });
+
+          // Auto ajuste
+          columnNames.forEach((name, index) => {
+            const col = sheet.getColumn(index + 1);
+            let maxLen = String(name).length;
+
+            col.eachCell({includeEmpty: false}, (cell) => {
+              const value =
+                cell.value === null ||
+                cell.value === undefined ? "" : String(cell.value);
+              if (value.length > maxLen) maxLen = value.length;
+            });
+
+            col.width = maxLen + 2;
+          });
+
+          // ============================================
+          // RETORNAR DOWNLOAD
+          // ============================================
+          const fileName = `Demonstrativo_${idDemonstrativo}.xlsx`;
+
+          res.setHeader(
+              "Content-Type",
+              "application/vnd.openxmlformats-" +
+              "officedocument.spreadsheetml.sheet");
+          res.setHeader(
+              "Content-Disposition",
+              `attachment; filename="${fileName}"`);
+
+          const buffer = await workbook.xlsx.writeBuffer();
+          res.status(200).send(Buffer.from(buffer));
+        } catch (err) {
+          console.error("[asaDemonstrativoExcel] Erro:", err);
+          res.status(500).json({
+            error: "Erro interno ao gerar o demonstrativo.",
+            details: err.message || err,
+          });
+        }
+      });
+    });
+
+
